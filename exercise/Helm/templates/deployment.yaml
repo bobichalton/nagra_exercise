@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "nagra.fullname" . }}
+  labels:
+    {{- include "nagra.labels" . | nindent 4 }}
+spec:
+  {{- if .Values.replicaCount }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "nagra.selectorLabels" . | nindent 2 }}
+  template:
+    metadata:
+      {{- if .Values.podAnnotations }}
+      annotations:
+        {{- toYaml .Values.podAnnotations | nindent 4 }}
+      {{- end }}
+      labels:
+        {{- include "nagra.selectorLabels" . | nindent 4 }}
+    spec:
+      {{- if .Values.image.pullSecrets }}
+      imagePullSecrets:
+        - name: "{{ .Values.image.pullSecrets }}"
+      {{- end }}
+      serviceAccountName: {{ include "nagra.serviceAccountName" . }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          {{- if .Values.resources }}
+          resources:
+            {{ toYaml .Values.resources | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - mountPath: /app/uploads
+              name: "{{ include "nagra.fullname" . }}-volume"
+      volumes:
+        - name: "{{ include "nagra.fullname" . }}-volume"
+          persistentVolumeClaim:
+            claimName: "{{ include "nagra.fullname" . }}-pvc"
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{ toYaml . | nindent 4 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{ toYaml . | nindent 4 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{ toYaml . | nindent 4 }}
+      {{- end }}

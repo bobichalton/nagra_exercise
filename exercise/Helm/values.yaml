@@ -1,0 +1,32 @@
+affinity: {}
+
+image:
+  pullPolicy: "Always"
+  pullSecrets: []
+  repository: "roberto/my-app"
+  tag: "0.1.0"
+
+labels: {}
+
+nodeSelector: {}
+
+podAnnotatios: {}
+
+port: 5000
+
+pvcSize: "10Gi"
+
+replicaCount: 1
+
+resources: {}
+
+service:
+  port: 5000
+  type: "ClusterIP"
+
+serviceAccount:
+  annotations: {}
+  create: false
+  name: "nagraServiceAccount"
+
+tolerations: []

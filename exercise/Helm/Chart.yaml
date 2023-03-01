@@ -1,0 +1,13 @@
+apiVersion: v2
+name: nagra
+description: A Helm chart for install the App on kubernetes
+
+type: application
+
+version: 0.1.0
+
+appVersion: "0.1.0"
+
+dependencies:
+  - name: prometheus-community/kube-prometheus-stack
+    version: "18.0.0"
